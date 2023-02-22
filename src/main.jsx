@@ -6,11 +6,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import theme from "../theme";
 import App from "./App";
 import "./index.css";
-import { fetchPosts, fetchUsers } from "./store/slices/index.js";
+import { supabaseApi, fetchUsers } from "./store/slices/index.js";
 import { store } from "./store/store";
 
 store.dispatch(fetchUsers());
-store.dispatch(fetchPosts());
+store.dispatch(supabaseApi.endpoints.getPosts.initiate());
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   // <React.StrictMode>

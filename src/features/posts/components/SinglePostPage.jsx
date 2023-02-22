@@ -9,7 +9,7 @@ import { TimeAgo } from "./TimeAgo.jsx";
 export const SinglePostPage = () => {
   const { postId } = useParams();
 
-  const post = useSelector((state) => selectPostById(state, Number(postId)));
+  const post = useSelector((state) => selectPostById(state, postId));
 
   if (!post) {
     return (
@@ -19,28 +19,32 @@ export const SinglePostPage = () => {
     );
   }
   return (
-    <Flex
-      as="article"
-      flexDirection="column"
-      borderRadius="10px"
-      borderColor="white"
-      border="2px"
-      padding="1em"
-      width="500px"
-    >
-      <Box as="h2" fontSize="1.5em" mb="4" fontWeight="bold">
-        {post.title}
-      </Box>
-      <p>{post.body}</p>
-      <Box as="p" mt="5">
-        <Box as={Link} color="cyan.300" to={`/post/edit/${post.id}`}>
-          Edit Post &nbsp;
+    <Flex as="main" alignItems="center" flexDirection="column" width="100%">
+      <Flex
+        as="article"
+        flexDirection="column"
+        alignItems="center"
+        borderRadius="10px"
+        borderColor="white"
+        border="2px"
+        padding="1em"
+        maxWidth="650px"
+        mx={{ base: "24px", md: "inherit" }}
+      >
+        <Box as="h2" fontSize="1.5em" mb="4" fontWeight="bold">
+          {post.title}
         </Box>
+        <p>{post.content}</p>
+        <Box as="p" mt="5">
+          <Box as={Link} color="cyan.300" to={`/post/edit/${post.id}`}>
+            Edit Post &nbsp;
+          </Box>
 
-        <PostAuthor userId={post.userId} />
-        <TimeAgo timeStamp={post.date} />
-      </Box>
-      <ReactionButtons post={post} />
+          <PostAuthor userId={post.userId} />
+          <TimeAgo timeStamp={post.date} />
+        </Box>
+        <ReactionButtons post={post} />
+      </Flex>
     </Flex>
   );
 };

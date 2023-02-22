@@ -8,8 +8,8 @@ import { ReactionButtons } from "./ReactionButtons.jsx";
 import { TimeAgo } from "./TimeAgo.jsx";
 
 export const PostsExcerpt = ({ postId }) => {
-  console.log(postId);
   const post = useSelector((state) => selectPostById(state, postId));
+
   return (
     <Flex
       as="article"
@@ -18,12 +18,12 @@ export const PostsExcerpt = ({ postId }) => {
       borderColor="white"
       border="2px"
       padding="1em"
-      width="500px"
+      width="100%"
     >
       <Box as="h3" fontSize="1.5em" mb="4" fontWeight="bold">
         {post.title}
       </Box>
-      <p>{post.body.substring(0, 75)}</p>
+      <p>{post.content.substring(0, 75)}</p>
       <Box as="p" mt="5">
         <Box as={Link} color="cyan.300" to={`/post/${post.id}`}>
           View Post &nbsp;

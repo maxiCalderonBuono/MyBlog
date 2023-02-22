@@ -1,43 +1,45 @@
-import {
-  Box,
-  Flex,
-  ListItem,
-  OrderedList,
-  scaleFadeConfig,
-} from "@chakra-ui/react";
+import { Box, Flex, ListItem, OrderedList } from "@chakra-ui/react";
 
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import {
-  selectAllPosts,
   selectUserById,
-  selectPostByUser,
+  useGetPostsByUserIdQuery,
 } from "../../store/slices/index.js";
 
 export const UserPage = () => {
   const { userId } = useParams();
-  const user = useSelector((state) => selectUserById(state, Number(userId)));
+  const user = useSelector((state) => selectUserById(state, userId));
 
-  const postsForUser = useSelector((state) =>
-    selectPostByUser(state, Number(userId))
-  );
+  const {
+    data: postsForUser,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetPostsByUserIdQuery(userId);
 
-  console.log(postsForUser);
+  let content;
+  if (isLoading) {
+    content = <p>Loading...</p>;
+  } else if (isSuccess) {
+    const { ids, entities } = postsForUser;
 
-  const postTitles = postsForUser.map((post) => (
-    <ListItem
-      key={post.id}
-      _hover={{
-        color: "cyan.300",
-        fontWeight: "bold",
-        transform: "scale(1.02)",
-      }}
-    >
-      <Link to={`/post/${post.id}`}>{post.title}</Link>
-    </ListItem>
-  ));
-
-  console.log(postTitles);
+    content = ids.map((id) => (
+      <ListItem
+        key={id}
+        _hover={{
+          color: "cyan.300",
+          fontWeight: "bold",
+          transform: "scale(1.02)",
+        }}
+      >
+        <Link to={`/post/${id}`}>{entities[id].title}</Link>
+      </ListItem>
+    ));
+  } else if (isError) {
+    content = <p>{error}</p>;
+  }
 
   return (
     <Flex
@@ -46,6 +48,11 @@ export const UserPage = () => {
       h="100%"
       alignItems="center"
       gap="4"
+      mx={{
+        base: "24px",
+        md: "48px",
+        lg: "80px",
+      }}
     >
       <Box
         as="h2"
@@ -62,7 +69,7 @@ export const UserPage = () => {
         gap="5"
         fontSize="1.2em"
       >
-        {postTitles}
+        {content}
       </OrderedList>
     </Flex>
   );

@@ -1,32 +1,53 @@
-import { Box, Button, Flex, Input, Select, Textarea } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  Select,
+  Textarea,
+  useUpdateEffect,
+} from "@chakra-ui/react";
 
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  updatePost,
-  deletePost,
   selectAllUsers,
   selectPostById,
+  useUpdatePostMutation,
+  useDeletePostMutation,
 } from "../../../store/slices/index.js";
 
 export const EditPostForm = () => {
+  const CATEGORIES = [
+    "Sports",
+    "Science",
+    "Politics",
+    "Lifestyle",
+    "IT",
+    "News",
+    "Art",
+  ];
+
   const { postId } = useParams();
 
   const navigate = useNavigate();
 
-  const dispatch = useDispatch();
-  const post = useSelector((state) => selectPostById(state, Number(postId)));
+  const [updatePost, { isLoading: updateStatus }] = useUpdatePostMutation();
+  const [deletePost, { isLoading: deleteStatus }] = useDeletePostMutation();
+
+  const post = useSelector((state) => selectPostById(state, postId));
   const users = useSelector(selectAllUsers);
 
   const [title, setTitle] = useState(post?.title);
-  const [content, setContent] = useState(post?.body);
+  const [content, setContent] = useState(post?.content);
   const [userId, setUserId] = useState(post?.userId);
-  const [requestStatus, setRequestStatus] = useState("idle");
+  const [category, setCategory] = useState(post?.category);
 
   const onTitleChanged = (e) => setTitle(e.target.value);
   const onContentChanged = (e) => setContent(e.target.value);
   const onAuthorChanged = (e) => setUserId(Number(e.target.value));
+  const onCategoryChanged = (e) => setCategory(e.target.value);
 
   if (!post) {
     return (
@@ -37,51 +58,44 @@ export const EditPostForm = () => {
   }
 
   const canSave =
-    [title, content, userId].every(Boolean) && requestStatus === "idle";
+    [title, content, userId, category].every(Boolean) && !updateStatus;
 
-  const onSavePostClicked = () => {
+  const onSavePostClicked = async () => {
     if (canSave) {
       try {
-        setRequestStatus("pending");
-        dispatch(
-          updatePost({
-            id: post.id,
-            title,
-            body: content,
-            userId,
-            reactions: post.reactions,
-          })
-        ).unwrap();
+        await updatePost({
+          id: post.id,
+          title,
+          content,
+          userId,
+          reactions: post.reactions,
+          category,
+        }).unwrap();
 
         setTitle("");
         setContent("");
+        setCategory("");
         setUserId("");
         navigate(`/post/${postId}`);
       } catch (error) {
         console.log("Failed to save the post", error);
-      } finally {
-        setRequestStatus("idle");
       }
     }
   };
 
-  const onDeletePostClicked = () => {
+  const onDeletePostClicked = async () => {
     try {
-      setRequestStatus("pending");
-      dispatch(
-        deletePost({
-          id: post.id,
-        })
-      ).unwrap();
+      await deletePost({
+        id: post.id,
+      }).unwrap();
 
       setTitle("");
       setContent("");
+      setCategory("");
       setUserId("");
       navigate("/");
     } catch (error) {
       console.log("Failed to delete the post", error);
-    } finally {
-      setRequestStatus("idle");
     }
   };
 
@@ -91,12 +105,33 @@ export const EditPostForm = () => {
     </option>
   ));
 
+  const categoryOptions = CATEGORIES.map((category, index) => (
+    <option key={index} value={category}>
+      {category}
+    </option>
+  ));
+
   return (
-    <Flex as="section" flexDirection="column">
-      <Box as="h2" fontSize="2.2em" fontWeight="extrabold" mb="4">
+    <Flex
+      as="section"
+      flexDirection="column"
+      alignItems="center"
+      mx={{
+        base: "24px",
+        md: "48px",
+        lg: "80px",
+      }}
+    >
+      <Box
+        as="h2"
+        fontSize="2.2em"
+        fontWeight="extrabold"
+        mb="4"
+        textAlign="left"
+      >
         Edit Post
       </Box>
-      <Flex as="form" flexDirection="column" gap="4" minWidth="500px">
+      <Flex as="form" flexDirection="column" gap="4" w="100%" maxW="600px">
         <label htmlFor="postTitle">Post Title:</label>
         <Input
           id="postTitle"
@@ -110,6 +145,11 @@ export const EditPostForm = () => {
           <option value=""></option>
           {userOptions}
         </Select>
+        <label htmlFor="postAuthor">Category</label>
+        <Select id="postAuthor" onChange={onCategoryChanged} value={category}>
+          <option value=""></option>
+          {categoryOptions}
+        </Select>
         <label htmlFor="postContent">Content:</label>
         <Textarea
           id="postContent"
@@ -118,11 +158,20 @@ export const EditPostForm = () => {
           onChange={onContentChanged}
         />
 
-        <Button disabled={!canSave} onClick={onSavePostClicked}>
+        <Button
+          isLoading={updateStatus}
+          disabled={!canSave}
+          loadingText="Submitting"
+          onClick={onSavePostClicked}
+          backgroundColor={canSave ? "green.300" : ""}
+        >
           Save Post
         </Button>
+
         <Button
+          isLoading={deleteStatus}
           disabled={!canSave}
+          loadingText="Submitting"
           onClick={onDeletePostClicked}
           bgColor="red.400"
         >
