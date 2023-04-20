@@ -7,7 +7,7 @@ import {
 
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 // import axios from "axios";
-import { sub } from "date-fns";
+
 import { supabase } from "../../../utils/supabase";
 
 // const POST_URL = "https://jsonplaceholder.typicode.com/posts"; NOW REPLACE WITH API SLICE FROM RTK QUERY
@@ -36,6 +36,7 @@ export const supabaseApi = createApi({
           // const filteredData = category
           //   ? data.filter((post) => post.category === category)
           //   : data;
+
           const fetchedPost = postsAdapter.setAll(initialState, data);
           return { data: fetchedPost };
         } catch (err) {
@@ -57,6 +58,7 @@ export const supabaseApi = createApi({
             .match({ userId: id });
 
           const fetchedPosts = postsAdapter.setAll(initialState, data);
+
           return { data: fetchedPosts };
         } catch (err) {
           return { error: err };

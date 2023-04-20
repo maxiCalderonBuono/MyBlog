@@ -41,7 +41,7 @@ export const SinglePostPage = () => {
           </Box>
 
           <PostAuthor userId={post.userId} />
-          <TimeAgo timeStamp={post.date} />
+          <TimeAgo timeStamp={post.created_at} />
         </Box>
         <ReactionButtons post={post} />
       </Flex>

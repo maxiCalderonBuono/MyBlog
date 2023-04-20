@@ -10,6 +10,8 @@ import { TimeAgo } from "./TimeAgo.jsx";
 export const PostsExcerpt = ({ postId }) => {
   const post = useSelector((state) => selectPostById(state, postId));
 
+  console.log(post.created_at);
+
   return (
     <Flex
       as="article"
@@ -29,7 +31,7 @@ export const PostsExcerpt = ({ postId }) => {
           View Post &nbsp;
         </Box>
         <PostAuthor userId={post.userId} />
-        <TimeAgo timeStamp={post.date} />
+        <TimeAgo timeStamp={post.created_at} />
       </Box>
       <ReactionButtons post={post} />
     </Flex>
